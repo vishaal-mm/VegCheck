@@ -54,23 +54,8 @@ With your real key:
 API_KEY: 'sk-ant-xxxxxxxxxxxxxxxxxx',
 ```
 
-### 2. Push to GitHub
 
-```bash
-git init
-git add .
-git commit -m "Initial commit"
-git remote add origin https://github.com/YOUR_USERNAME/vegcheck.git
-git push -u origin main
-```
-
-### 3. Enable GitHub Pages
-
-- Go to repo **Settings → Pages**
-- Select **main** branch → Save
-- Your URL: `https://YOUR_USERNAME.github.io/vegcheck`
-
-### 4. Open on iPhone
+### 2. Open on iPhone
 
 Open the URL in Safari on iPhone. Allow camera access when prompted.
 
@@ -83,8 +68,7 @@ cd vegcheck
 python3 -m http.server 8080
 ```
 
-Then open `http://localhost:8080` in your browser. Note: camera will not work on localhost over http — use the GitHub Pages URL for iPhone testing.
-
+Then open `http://localhost:8080` in your browser. Note: camera will not work on localhost over http 
 ---
 
 ## ⚠️ Security
