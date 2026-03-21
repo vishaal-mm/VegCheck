@@ -1,0 +1,482 @@
+/* =============================================================
+   styles.css
+   Responsibility: all visual styling for VegCheck.
+   Organised into 8 clearly labelled sections.
+   Change CSS variables in section 1 to retheme the whole app.
+   ============================================================= */
+
+/* ============================================================
+   1. VARIABLES & RESET
+   ============================================================ */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+:root {
+  /* Brand */
+  --color-brand:         #3B6D11;
+  --color-brand-light:   #97C459;
+
+  /* Backgrounds */
+  --color-bg:            #F7F7F5;
+  --color-surface:       #FFFFFF;
+  --color-dark:          #1A1A1A;
+
+  /* Result states */
+  --color-vegetarian:     #2E7D32;
+  --color-not-vegetarian: #C62828;
+  --color-uncertain:      #E65100;
+
+  /* Text */
+  --color-text-primary:   #1A1A1A;
+  --color-text-muted:     #AAAAAA;
+  --color-text-white:     #FFFFFF;
+
+  /* Borders */
+  --color-border:         #EEEEEE;
+
+  /* Misc */
+  --font-stack: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --radius-sm:  10px;
+  --radius-md:  16px;
+  --radius-lg:  24px;
+  --radius-xl:  32px;
+  --transition: 0.3s ease;
+}
+
+html, body {
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+  background: var(--color-dark);
+  font-family: var(--font-stack);
+  color: var(--color-text-primary);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ============================================================
+   2. BASE & TYPOGRAPHY
+   ============================================================ */
+button {
+  font-family: var(--font-stack);
+  cursor: pointer;
+  border: none;
+  transition: transform 0.1s ease, opacity 0.1s ease;
+}
+
+button:active {
+  transform: scale(0.96);
+  opacity: 0.88;
+}
+
+/* Utility: hides any element */
+.hidden {
+  display: none !important;
+}
+
+/* ============================================================
+   3. LAYOUT & SCREEN SWITCHER
+   All three screens are always in the DOM.
+   Only .active is visible — opacity + pointer-events.
+   CSS handles the fade transition.
+   ============================================================ */
+.screen {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--transition);
+}
+
+.screen.active {
+  opacity: 1;
+  pointer-events: all;
+}
+
+/* ============================================================
+   4. HOME SCREEN
+   ============================================================ */
+#screen-home {
+  background: var(--color-bg);
+}
+
+.home-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 40px 32px;
+  text-align: center;
+}
+
+.home-logo {
+  width: 88px;
+  height: 88px;
+  margin-bottom: 8px;
+}
+
+.home-title {
+  font-size: 32px;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  letter-spacing: -0.5px;
+}
+
+.home-subtitle {
+  font-size: 10px;
+  letter-spacing: 3px;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  margin-bottom: 24px;
+}
+
+.btn-primary {
+  background: var(--color-dark);
+  color: var(--color-text-white);
+  border-radius: 50px;
+  padding: 16px 48px;
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: 0.2px;
+}
+
+/* ============================================================
+   5. SCAN SCREEN
+   ============================================================ */
+#screen-scan {
+  background: #111111;
+}
+
+/* Camera feed fills the full screen */
+#camera-feed {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Hidden canvas used to capture still frames */
+#capture-canvas {
+  display: none;
+}
+
+/* Back button floats top-left above camera */
+.btn-back {
+  position: absolute;
+  top: 52px;
+  left: 20px;
+  z-index: 10;
+  background: rgba(0, 0, 0, 0.4);
+  color: rgba(255, 255, 255, 0.85);
+  border-radius: 20px;
+  padding: 8px 16px;
+  font-size: 14px;
+}
+
+/* Viewfinder overlay — centered, above capture button */
+.viewfinder {
+  position: absolute;
+  width: 240px;
+  height: 240px;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -62%);
+  z-index: 5;
+}
+
+/* Four L-shaped corners of the viewfinder */
+.vf-corner {
+  position: absolute;
+  width: 36px;
+  height: 36px;
+  border-color: rgba(255, 255, 255, 0.9);
+  border-style: solid;
+  border-width: 0;
+}
+
+.vf-corner.tl { top: 0; left: 0;  border-top-width: 3px; border-left-width: 3px;  border-radius: 4px 0 0 0; }
+.vf-corner.tr { top: 0; right: 0; border-top-width: 3px; border-right-width: 3px; border-radius: 0 4px 0 0; }
+.vf-corner.bl { bottom: 0; left: 0;  border-bottom-width: 3px; border-left-width: 3px;  border-radius: 0 0 0 4px; }
+.vf-corner.br { bottom: 0; right: 0; border-bottom-width: 3px; border-right-width: 3px; border-radius: 0 0 4px 0; }
+
+/* Instruction hint above capture button */
+.scan-hint {
+  position: absolute;
+  bottom: 148px;
+  z-index: 10;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 13px;
+  letter-spacing: 0.5px;
+}
+
+/* Circular shutter button */
+.btn-capture {
+  position: absolute;
+  bottom: 52px;
+  z-index: 10;
+  width: 76px;
+  height: 76px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.18);
+  border: 3px solid rgba(255, 255, 255, 0.9);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-capture-inner {
+  width: 58px;
+  height: 58px;
+  border-radius: 50%;
+  background: #FFFFFF;
+  pointer-events: none;
+}
+
+/* Loading overlay — blocks interaction during API call */
+.loading-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 20;
+  background: rgba(0, 0, 0, 0.72);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+}
+
+.loading-spinner {
+  width: 48px;
+  height: 48px;
+  border: 4px solid rgba(255, 255, 255, 0.2);
+  border-top-color: #FFFFFF;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+.loading-text {
+  color: #FFFFFF;
+  font-size: 15px;
+  opacity: 0.85;
+}
+
+/* Inline API error on scan screen */
+.scan-error {
+  position: absolute;
+  bottom: 152px;
+  z-index: 10;
+  background: rgba(198, 40, 40, 0.92);
+  color: #FFFFFF;
+  font-size: 13px;
+  padding: 10px 20px;
+  border-radius: 20px;
+  text-align: center;
+  max-width: 300px;
+}
+
+/* ============================================================
+   6. RESULT SCREEN
+   ============================================================ */
+#screen-result {
+  background: var(--color-bg);
+  padding: 0 24px;
+  gap: 0;
+}
+
+/* Result card — colour changes based on verdict class */
+.result-card {
+  width: 100%;
+  max-width: 340px;
+  border-radius: var(--radius-lg);
+  padding: 40px 28px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+#result-section.result--vegetarian     .result-card { background: var(--color-vegetarian); }
+#result-section.result--not-vegetarian .result-card { background: var(--color-not-vegetarian); }
+
+/* Icon circle inside result card */
+.result-icon-wrap {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.22);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 4px;
+}
+
+.result-label {
+  font-size: 26px;
+  font-weight: 700;
+  color: #FFFFFF;
+  text-align: center;
+}
+
+/* Scan again button */
+.btn-secondary {
+  background: transparent;
+  border: 1.5px solid var(--color-border);
+  color: #555555;
+  border-radius: 50px;
+  padding: 14px 40px;
+  font-size: 15px;
+  font-weight: 600;
+  margin-bottom: 0;
+}
+
+/* Signature */
+.signature {
+  font-size: 11px;
+  color: var(--color-text-muted);
+  letter-spacing: 1.5px;
+  margin-top: 20px;
+  text-align: center;
+}
+
+/* ── UNCERTAIN STATE ── */
+.uncertain-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  max-width: 340px;
+  gap: 0;
+}
+
+/* Pulsing V logo container */
+.pulse-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 20px;
+  cursor: pointer;
+}
+
+/* Amber ring around pulsing logo */
+#pulse-logo {
+  width: 96px;
+  height: 96px;
+  border-radius: 50%;
+  background: #FFF3E0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: heartbeat 2.2s ease-in-out infinite;
+}
+
+.pulse-hint {
+  font-size: 10px;
+  color: var(--color-text-muted);
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+}
+
+/* Help card — hidden until user taps the logo */
+.uncertain-help-card {
+  width: 100%;
+  background: var(--color-surface);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border);
+  padding: 18px;
+  margin-bottom: 20px;
+}
+
+.uncertain-help-card .card-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--color-uncertain);
+  margin-bottom: 6px;
+}
+
+.uncertain-help-card .card-body {
+  font-size: 13px;
+  color: #666666;
+  line-height: 1.5;
+  margin-bottom: 14px;
+}
+
+.btn-retry {
+  width: 100%;
+  background: var(--color-dark);
+  color: var(--color-text-white);
+  border-radius: var(--radius-sm);
+  padding: 12px;
+  font-size: 13px;
+  font-weight: 600;
+  text-align: center;
+  margin-bottom: 14px;
+}
+
+.card-divider {
+  border: none;
+  border-top: 1px solid var(--color-border);
+  margin: 0 0 14px;
+}
+
+.waiter-label {
+  font-size: 10px;
+  color: var(--color-text-muted);
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+
+.waiter-quote {
+  font-size: 13px;
+  color: var(--color-text-primary);
+  font-style: italic;
+  background: #F7F7F5;
+  border-left: 3px solid var(--color-uncertain);
+  border-radius: 0 8px 8px 0;
+  padding: 10px 12px;
+  line-height: 1.5;
+}
+
+/* Slide-up animation for help card reveal */
+.slide-up {
+  animation: slideUp 0.35s ease forwards;
+}
+
+/* ============================================================
+   7. LOADING & ERROR STATES
+   (see scan screen section above for scan-error and overlay)
+   ============================================================ */
+
+/* ============================================================
+   8. ANIMATIONS
+   ============================================================ */
+
+/* Heartbeat — lub-dub pattern like a real heartbeat */
+@keyframes heartbeat {
+  0%   { transform: scale(1); }
+  12%  { transform: scale(1.10); }
+  24%  { transform: scale(1); }
+  36%  { transform: scale(1.06); }
+  48%  { transform: scale(1); }
+  100% { transform: scale(1); }
+}
+
+/* Loading spinner rotation */
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Help card slides up from below */
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}

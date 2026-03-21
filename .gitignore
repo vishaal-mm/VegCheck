@@ -1,0 +1,16 @@
+# ⚠️  Never commit a version of config.js with a real API key.
+# The key in config.js is the only secret in this project.
+
+# Local docs — not for GitHub
+Docs/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+*.swp
+
+# Logs
+*.log

@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <!--
+    viewport: fills iPhone screen, disables user scaling.
+    user-scalable=no prevents accidental zoom during scanning.
+  -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+  <title>VegCheck</title>
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+
+<!--
+  =============================================================
+  HTML STRUCTURE
+  Three screens are always in the DOM.
+  Only the screen with .active is visible (controlled by ui.js).
+  Default active screen: #screen-home.
+  =============================================================
+-->
+<body>
+
+  <!-- =========================================================
+       SCREEN 1 — HOME
+       Entry point. Shows logo, app name, and scan button.
+       ========================================================= -->
+  <div id="screen-home" class="screen active">
+    <div class="home-content">
+
+      <!-- V lettermark logo loaded from assets -->
+      <img src="assets/logo.svg" alt="VegCheck logo" class="home-logo" />
+
+      <h1 class="home-title">VegCheck</h1>
+      <p class="home-subtitle">Food Scanner</p>
+
+      <button id="btn-scan" class="btn-primary">Scan food</button>
+
+    </div>
+  </div>
+
+
+  <!-- =========================================================
+       SCREEN 2 — SCAN
+       Live camera viewfinder. Capture button triggers the
+       full camera → API → result flow in app.js.
+       ========================================================= -->
+  <div id="screen-scan" class="screen">
+
+    <!-- Back button: stops camera, returns to home -->
+    <button id="btn-back" class="btn-back">← Back</button>
+
+    <!-- Live camera feed — fills the screen -->
+    <video id="camera-feed" autoplay playsinline muted></video>
+
+    <!--
+      Hidden canvas: used by captureFrame() in camera.js to
+      grab a still image from the video stream.
+    -->
+    <canvas id="capture-canvas"></canvas>
+
+    <!-- Decorative viewfinder corners to help user aim -->
+    <div class="viewfinder">
+      <div class="vf-corner tl"></div>
+      <div class="vf-corner tr"></div>
+      <div class="vf-corner bl"></div>
+      <div class="vf-corner br"></div>
+    </div>
+
+    <!-- Instruction text above the shutter button -->
+    <p class="scan-hint">Point at your food</p>
+
+    <!-- Shutter button — triggers capture + API call -->
+    <button id="btn-capture" class="btn-capture" aria-label="Capture food image">
+      <span class="btn-capture-inner"></span>
+    </button>
+
+    <!--
+      Loading overlay: shown during API call.
+      Covers the screen so user can't double-tap.
+    -->
+    <div id="loading-overlay" class="loading-overlay hidden">
+      <div class="loading-spinner"></div>
+      <p class="loading-text">Analysing your food…</p>
+    </div>
+
+    <!-- Inline error: shown if API call fails. Auto-dismisses. -->
+    <div id="scan-error" class="scan-error hidden"></div>
+
+  </div>
+
+
+  <!-- =========================================================
+       SCREEN 3 — RESULT
+       Shows one of three states based on the verdict:
+       vegetarian (green), not vegetarian (red), uncertain (amber).
+       The uncertain state has a pulsing V logo that reveals
+       a help card on tap.
+       ========================================================= -->
+  <div id="screen-result" class="screen">
+
+    <!-- Verdict state wrapper — CSS class drives the colour -->
+    <div id="result-section">
+
+      <!-- Standard result card (vegetarian / not vegetarian) -->
+      <div id="result-card" class="result-card hidden">
+        <div class="result-icon-wrap">
+
+          <!-- Check icon — shown for VEGETARIAN -->
+          <svg id="result-icon-check" class="hidden" width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M6 16L12 23L26 9" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+
+          <!-- Cross icon — shown for NOT_VEGETARIAN -->
+          <svg id="result-icon-cross" class="hidden" width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M8 8L24 24M8 24L24 8" stroke="white" stroke-width="3" stroke-linecap="round"/>
+          </svg>
+
+        </div>
+        <h2 id="result-label" class="result-label"></h2>
+      </div>
+
+      <!-- ─── UNCERTAIN STATE ─────────────────────────────── -->
+      <div id="uncertain-section" class="uncertain-section hidden">
+
+        <!-- Pulsing V logo — tap to reveal help card -->
+        <div class="pulse-wrap">
+          <div id="pulse-logo" role="button" aria-label="Tap to see more information">
+            <!-- Amber-coloured V logo for uncertain state -->
+            <svg width="52" height="52" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+              <rect width="64" height="64" rx="16" fill="#E65100"/>
+              <path d="M16,18 L32,46 L48,18" fill="none" stroke="#FFFFFF" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+              <circle cx="32" cy="46" r="4" fill="#FFCC80"/>
+            </svg>
+          </div>
+          <p class="pulse-hint">Tap for details</p>
+        </div>
+
+        <!-- Help card — hidden until user taps the logo -->
+        <div id="uncertain-help-card" class="uncertain-help-card hidden">
+          <p class="card-title">VegCheck is uncertain</p>
+          <p class="card-body">Couldn't determine this from the image alone.</p>
+          <button id="btn-retry" class="btn-retry">Try a closer photo</button>
+          <hr class="card-divider" />
+          <p class="waiter-label">Or ask your waiter</p>
+          <p class="waiter-quote">"Does this contain meat, poultry or seafood?"</p>
+        </div>
+
+      </div>
+      <!-- ─── END UNCERTAIN STATE ────────────────────────── -->
+
+    </div>
+
+    <!-- Scan again button — shown for all result states -->
+    <button id="btn-scan-again" class="btn-secondary">Scan again</button>
+
+    <!-- Signature -->
+    <p class="signature">built with ♥ · VM</p>
+
+  </div>
+
+
+  <!--
+    JS files loaded at the bottom in dependency order:
+    config → camera → api → ui → app (orchestrator last)
+  -->
+  <script src="js/config.js"></script>
+  <script src="js/camera.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/app.js"></script>
+
+</body>
+</html>
